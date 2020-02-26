@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include <fstream>
+#include <thread>
 
 class observer
 {
@@ -23,12 +25,18 @@ public:
   }
   void push(std::string& str)
   {
-    if (!str.empty())
-      v.push_back(str);
+    if (v.empty())
+      setTime();
+
+    v.push_back(str);
   }
   std::time_t& getTime()
   {
     return tim;
+  }
+  void setTime()
+  {
+    tim = std::time(nullptr);
   }
   auto size()
   {
@@ -78,7 +86,15 @@ public:
   void update(std::vector<std::string>& v) override
   {
     std::string t = std::to_string(tim);
-    std::cout << "unixtime " << t << std::endl;
+    std::ofstream file("bulk" + t + ".log", std::ios::trunc | std::ios::binary );
+    if (file)
+    {
+      for(auto &i: v)
+      {
+        file << i << std::endl;
+      }
+    }
+    file.close();
   }
 };
 

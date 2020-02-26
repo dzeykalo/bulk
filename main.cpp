@@ -4,12 +4,13 @@
 int main(int argc, char* argv[])
 {
   int N = 3;
-  if (argc > 0) N = atoi(argv[1]);
-  if (N <= 0) N = 1;
+  if (argc > 1)
+    N = atoi(argv[1]);
+  if (N <= 0)
+    N = 1;
+
   std::string input;
-//  std::vector<std::string> v;
-//  int count = 0;
-  int nested_count = 0;
+  int bkt = 0;
 
   handler hand;
   output_observer out(&hand);
@@ -18,39 +19,36 @@ int main(int argc, char* argv[])
   do{
     std::getline(std::cin, input);
 
-    if ((nested_count == 0) && (input.find('{') != std::string::npos))
+    switch (bkt)
     {
-      hand.show();
-      nested_count++;
-    }
-    else if (nested_count > 0 && (input.find('{') != std::string::npos))
-    {
-      nested_count++;
-    }
-    else if (nested_count > 1 && (input.find('}') != std::string::npos))
-    {
-      nested_count--;
-    }
-    else if (nested_count <= 1 && (input.find('}') != std::string::npos))
-    {
-      hand.show();
-      nested_count = 0;
-    }
-    else if (nested_count != 0)
-    {
-      hand.push(input);
-    }
-    else
-    {
-      hand.push(input);
-      if ( hand.size() >= N )
-      {
-        hand.show();
-      }
-    }
+      case 0:
+        if (input.find('{') != std::string::npos)
+          ++bkt;
+        else
+          hand.push(input);
 
+        if ( hand.size() >= N || bkt)
+          hand.show();
+        break;
+
+      default:
+        if (input.find('{') != std::string::npos)
+          ++bkt;
+        else if (input.find('}') != std::string::npos)
+        {
+          if (--bkt <= 1 )
+          {
+            hand.show();
+            bkt = 0;
+          }
+        }
+        else
+          hand.push(input);
+        break;
+    }
+    std::this_thread::sleep_for (std::chrono::seconds(1));
   }while (!input.empty());
-  if (!nested_count)
+  if (!bkt)
     hand.show();
 
   return 0;
