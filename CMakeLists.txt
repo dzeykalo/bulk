@@ -3,4 +3,4 @@ project(bulk)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(bulk main.cpp)
+add_executable(bulk main.cpp observer.h)
