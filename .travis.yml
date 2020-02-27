@@ -1,0 +1,30 @@
+dist: xenial
+language: cpp
+compiler: clang
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-7
+    - libboost-test-dev
+    - doxygen
+    - graphviz
+script:
+- cmake .
+- cmake --build .
+- cmake --build . --target package
+- doxygen Doxyfile
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script:
+      - curl -f -T bulk-0.0.${TRAVIS_BUILD_NUMBER}-Linux.deb -udzeykalo:${BINTRAY_API_KEY} "https://api.bintray.com/content/dzeykalo/otus-cpp/homework/${TRAVIS_BUILD_NUMBER}/bulk-0.0.${TRAVIS_BUILD_NUMBER}-Linux.deb;deb_distribution=xenial;deb_component=main;deb_architecture=amd64;publish=1"
+    on:
+      branch: master
+  - provider: pages
+    skip_cleanup: true
+    local_dir: doxygen/html
+    github_token: $GITHUB_TOKEN
+    on:
+      branch: master

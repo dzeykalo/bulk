@@ -16,9 +16,8 @@ int main(int argc, char* argv[])
   output_observer out(&hand);
   record_observer rec(&hand);
 
-  do{
-    std::getline(std::cin, input);
-
+  while(std::getline(std::cin, input))
+  {
     switch (bkt)
     {
       case 0:
@@ -47,7 +46,7 @@ int main(int argc, char* argv[])
         break;
     }
     std::this_thread::sleep_for (std::chrono::seconds(1));
-  }while (!input.empty());
+  }
   if (!bkt)
     hand.show();
 
