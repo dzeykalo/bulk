@@ -12,9 +12,12 @@ int main(int argc, char* argv[])
   std::string input;
   int bkt = 0;
 
-  handler hand;
-  output_observer out(&hand);
-  record_observer rec(&hand);
+  auto hand = std::make_unique<handler>() ;
+  hand->subscribe(std::make_unique<output_observer>());
+  hand->subscribe(std::make_unique<record_observer>(hand));
+//  output_observer out;
+//  out.subscribe(hand);
+//  record_observer rec(&hand);
 
   while(std::getline(std::cin, input))
   {
@@ -24,10 +27,10 @@ int main(int argc, char* argv[])
         if (input.find('{') != std::string::npos)
           ++bkt;
         else
-          hand.push(input);
+          hand->push(input);
 
-        if ( hand.size() >= N || bkt)
-          hand.show();
+        if ( hand->size() >= N || bkt)
+          hand->show();
         break;
 
       default:
@@ -35,20 +38,20 @@ int main(int argc, char* argv[])
           ++bkt;
         else if (input.find('}') != std::string::npos)
         {
-          if (--bkt <= 1 )
+          if (--bkt < 1 )
           {
-            hand.show();
+            hand->show();
             bkt = 0;
           }
         }
         else
-          hand.push(input);
+          hand->push(input);
         break;
     }
-    std::this_thread::sleep_for (std::chrono::seconds(1));
+    std::this_thread::sleep_for (std::chrono::milliseconds(500));
   }
   if (!bkt)
-    hand.show();
+    hand->show();
 
   return 0;
 }

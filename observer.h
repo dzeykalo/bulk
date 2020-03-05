@@ -16,11 +16,11 @@ class handler
 private:
   std::vector<std::string> v;
   std::time_t tim;
-  std::vector<observer*> view;
+  std::vector<std::shared_ptr<observer>> view;
 public:
   handler(){}
 
-  void subscribe(observer *obs) {
+  void subscribe(std::shared_ptr<observer> obs) {
     view.push_back(obs);
   }
   void push(std::string& str)
@@ -47,7 +47,7 @@ public:
   {
     if (!v.empty())
     {
-      for (auto s : view)
+      for (auto &s : view)
       {
         s->update(v);
       }
@@ -56,12 +56,13 @@ public:
   }
 };
 
-class output_observer : public observer
+class output_observer : public observer, std::enable_shared_from_this<output_observer>
 {
 public:
-  output_observer(handler *ha)
+  output_observer(){}
+  void subscribe(std::unique_ptr<handler> &ha)
   {
-    ha->subscribe(this);
+    ha->subscribe(shared_from_this());
   }
   void update(std::vector<std::string>& v) override
   {
@@ -74,14 +75,17 @@ public:
   }
 };
 
-class record_observer : public observer
+class record_observer : public observer, std::enable_shared_from_this<record_observer>
 {
 private:
   std::time_t& tim;
 public:
-  record_observer(handler *ha):tim(ha->getTime())
+  record_observer():tim(tim){}
+  record_observer(std::unique_ptr<handler> &ha):tim(ha->getTime()){}
+  void subscribe(std::unique_ptr<handler> &ha)
   {
-    ha->subscribe(this);
+    tim = ha->getTime();
+    ha->subscribe(shared_from_this());
   }
   void update(std::vector<std::string>& v) override
   {
