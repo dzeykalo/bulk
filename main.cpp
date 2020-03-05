@@ -12,12 +12,13 @@ int main(int argc, char* argv[])
   std::string input;
   int bkt = 0;
 
-  auto hand = std::make_unique<handler>() ;
+  auto hand = std::make_unique<handler>();
+
   hand->subscribe(std::make_unique<output_observer>());
   hand->subscribe(std::make_unique<record_observer>(hand));
-//  output_observer out;
-//  out.subscribe(hand);
-//  record_observer rec(&hand);
+
+//  auto out = std::make_unique<output_observer>();
+//  out->subscribe(hand);
 
   while(std::getline(std::cin, input))
   {
@@ -48,7 +49,6 @@ int main(int argc, char* argv[])
           hand->push(input);
         break;
     }
-    std::this_thread::sleep_for (std::chrono::milliseconds(500));
   }
   if (!bkt)
     hand->show();
